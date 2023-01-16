@@ -1,0 +1,68 @@
+{% extends "home/base.html" %}
+{% load crispy_forms_tags %}
+{% block title %} {{ title }} | {{ block.super }}{% endblock title %}
+
+{% block content %}
+{% include "home/messages.html" %}
+    <h2>{{ title }}</h2><hr>
+    <form method="POST" action="" id= "registerForm"  novalidate enctype='multipart/form-data'>
+        {% csrf_token %}
+        <table>
+            {{ user_form|crispy }}
+            {{ address_form|crispy }}
+            {{ account_form|crispy }}
+        </table>
+        <br>
+        <input class="btn btn-success" type="submit" value='Open an Account'>
+        <small class="text-muted">
+            <b>You have already an Account?</b><a class="ml-2" href="{% url 'login' %}">Login An Account</a>
+        </small>
+    </form>
+{% endblock content %}
+
+{% block script_content %}
+<script>
+     $("#id_state").change(function () {
+        let state_id = $(this).val();  // get the selected state ID from the HTML input
+        $.ajax({                       // initialize an AJAX request
+            url: '{% url "load_districts" %}',  // set the url of the request (= localhost:8000/account/ajax/load-districts/)
+            method:"GET",
+            data: {
+                'state_id': state_id       // add the state id to the GET parameters
+            },
+            success: function (district_list) {   // `data` is the return of the `load_districts` view function
+                $('#id_district').empty();
+                $.each(district_list, function(key, value) {
+                    $('#id_district')
+                         .append($("<option></option>")
+                                    .attr("value", key)
+                                    .text(value));
+                });
+                // $("#id_district").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+
+      $("#id_district").change(function () {
+        let district_id = $(this).val();  // get the selected state ID from the HTML input
+        $.ajax({                       // initialize an AJAX request
+            url: '{% url "load_branches" %}',  // set the url of the request (= localhost:8000/account/ajax/load-districts/)
+            method:"GET",
+            data: {
+                'district_id': district_id       // add the state id to the GET parameters
+            },
+            success: function (branch_list) {   // `data` is the return of the `load_districts` view function
+                $('#id_branch_name').empty();
+                $.each(branch_list, function(key, value) {
+                    $('#id_branch_name')
+                         .append($("<option></option>")
+                                    .attr("value", key)
+                                    .text(value));
+                });
+                // $("#id_district").html(data);  // replace the contents of the city input with the data that came from the server
+            }
+        });
+    });
+</script>
+{% endblock script_content %}
+
